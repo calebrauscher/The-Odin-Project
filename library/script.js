@@ -4,36 +4,25 @@ function Book(title, author, pages, hasRead) {
     this.title = title;
     this.author = author;
     this.pages = pages;
-    this.hasRead = hasRead ? "You have read this book." : "You have not read this book yet.";
-}
-
-function changeReadStatus(book) {
-    book.hasRead = book.hasRead ? "You have not read this book yet" : "You have read this book";
+    this.hasRead = hasRead;
 }
 
 function createForm() {
     // Form
     const formButton = document.getElementById("books");
-    formButton.innerHTML = `<form id="form" onsubmit="addBookToLibrary(event)">
+    formButton.innerHTML = `<form id="form" class="container" onsubmit="addBookToLibrary(event)">
                                 <label for="author">Author:</label><br>
-                                <input type="text" id="author" name="author"></input><br>
+                                <input type="text" id="author" name="author" required></input><br>
                                 <label for="title">Title:</label></br>
-                                <input type="text" id="title" name="title"></input><br>
+                                <input type="text" id="title" name="title" required></input><br>
                                 <label for="pages">Pages:</label></br>
-                                <input type="number" id="pages" name="pages" min="1"></input><br>
+                                <input type="number" id="pages" name="pages" min="1" required></input><br>
                                 <label for="hasRead">Has book been read?</label>
-                                <input type="checkbox" id="hasRead" name="hasRead" value="Read"></input><br>
-                                <input type="submit" value="Submit">
+                                <input type="checkbox" id="hasRead" name="hasRead"></input><br>
+                                <input type="submit" value="Submit"><br>
                             </form>`;
+    hideButton();
 }
-
-// function removeForm() {
-//     document.getElementById("author").value = "";
-//     document.getElementById("title").value = "";
-//     document.getElementById("pages").value = "";
-//     document.getElementById("hasRead").value = false;
-//     //document.getElementById("form").remove();
-// }
 
 function addBookToLibrary(event) {
     const author = document.getElementById("author").value;
@@ -42,13 +31,13 @@ function addBookToLibrary(event) {
     const hasRead = document.getElementById("hasRead").value;
 
     const book = new Book(author, title, pages, hasRead);
+    console.log(book);
     myLibrary.push(book);
     //localStorage.setItem('myLibrary', JSON.stringify(myLibrary));
 
     //removeForm();
     render();
 }
-
 
 function render() {
     //myLibrary = JSON.parse(localStorage.getItem('myLibrary'));
@@ -59,18 +48,48 @@ function render() {
 
         display.innerHTML += `<div class="book-details">
                                 <div class="title">${book.title}</div>
-                                <div class="author">${book.author}</div>
+                                <div class="author">by ${book.author}</div>
                                 <div class="num-pages">${book.pages} pages</div>
-                                <div class="read-status">${book.hasRead}</div>
-                                <input type="checkbox" onclick="changeReadStatus(${book})" class="change-status">Read?</input>
-                                <button class="remove-book" onclick="removeBook(${book})">Remove</button>
+                                <div class="read-status">${
+                                  book.hasRead
+                                    ? "You have read this book."
+                                    : "You have not read this book."
+                                }</div>
+                                <button class="change-status" onclick="changeReadStatus(${idx})">Read?</input>
+                                <button class="remove-book" onclick="removeBook(${idx})">Remove</button>
                               </div>`;
     });
+
+    displayButton();
 }
 
+function removeBook(idx) {
+    const firstPart = myLibrary.slice(0, idx);
+    const secondPart = myLibrary.slice(idx + 1, myLibrary.length);
 
+    myLibrary = firstPart.concat(secondPart);
+    //localStorage.setItem('myLibrary', JSON.stringify(myLibrary));
+    render();
+}
 
-window.onload = function() {
-    document.getElementById("addBook").onclick = createForm
+function changeReadStatus(idx) {
+    myLibrary[idx].hasRead = !myLibrary[idx].hasRead;
+    render();
+}
+
+function hideButton() {
+    const addButton = document.getElementById("addBook");
+
+    addButton.style.display = "none";
+}
+
+function displayButton() {
+    const addButton = document.getElementById("addBook");
+
+    addButton.style.display = "block";
+}
+
+window.onload = function () {
+    document.getElementById("addBook").onclick = createForm;
     render();
 };
