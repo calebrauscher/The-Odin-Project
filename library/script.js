@@ -35,6 +35,7 @@ function addBookToLibrary(event) {
     localStorage.setItem('myLibrary', JSON.stringify(myLibrary));
 
     render();
+    return false;
 }
 
 function render() {
