@@ -25,6 +25,7 @@ function createForm() {
 }
 
 function addBookToLibrary(event) {
+    event.preventDefault();
     const author = document.getElementById("author").value;
     const title = document.getElementById("title").value;
     const pages = document.getElementById("pages").value;
@@ -35,7 +36,6 @@ function addBookToLibrary(event) {
     localStorage.setItem('myLibrary', JSON.stringify(myLibrary));
 
     render();
-    return false;
 }
 
 function render() {
