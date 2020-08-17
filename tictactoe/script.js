@@ -15,8 +15,8 @@ const gameBoard = (() => {
 
     const getSquare = (square) => gameboard[square];
 
-    const updateBoard = (square, mark) => {
-        gameboard[square] = mark;
+    const updateBoard = (square, symbol) => {
+        gameboard[square] = symbol;
     };
 
     const resetBoard = () => {
@@ -44,7 +44,7 @@ const gameBoard = (() => {
     };
 
     const checkTie = () => {
-        gameboard.every((square) => square == "X" || square == "O");
+        return gameboard.every((square) => square == "X" || square == "O");
     };
 
     return {
@@ -62,6 +62,7 @@ const game = ((doc) => {
     let squares = Array.from(doc.querySelectorAll(".square"));
     let modal = doc.getElementById("form-modal");
     let form = doc.getElementById("form");
+    let playerStatus = doc.getElementById("status");
     let player1Name = doc.getElementById("player1");
     let player2Name = doc.getElementById("player2");
     let container = doc.getElementById("container");
@@ -70,25 +71,24 @@ const game = ((doc) => {
     let winningPlayer = doc.getElementById("winner");
     let turnCounter = 1;
 
-    let player1 = player("", "X");
-    let player2 = player("", "O");
-
-    const render = () => {
-        squares.forEach((square) => {
-            square.innerHTML = gameBoard.getSquare(square.id);
-        });
-    };
-
     const getCurrentPlayer = () => {
         return turnCounter % 2 == 0 ? player2 : player1;
     };
 
+    const render = () => {
+        squares.forEach((square) => {
+            square.innerHTML = gameBoard.getSquare(square.id.slice(-1));
+        });
+    };
+
     const checkGame = (player) => {
         let winCombo = gameBoard.checkWin(player.symbol);
+        let currentPlayer = getCurrentPlayer();
         if (winCombo) {
-            winningPlayer.innerHTML = `${getCurrentPlayer().name} is the winner`;
+            winningPlayer.innerHTML = `${currentPlayer.name} is the winner`;
             return true;
-        } else if (gameBoard.checkTie()) {
+        }
+        if (gameBoard.checkTie()) {
             winningPlayer.innerHTML = `It's a tie!`;
             return true;
         }
@@ -97,9 +97,9 @@ const game = ((doc) => {
 
     const makeMove = (event) => {
         let currentPlayer = getCurrentPlayer();
-        console.log(currentPlayer);
         if (event.target.innerHTML === "") {
-            gameBoard.updateBoard(event.target.id, currentPlayer.symbol);
+            gameBoard.updateBoard(event.target.id.slice(-1), currentPlayer.symbol);
+            event.target.classList.add("occupied");
             render();
             /*if (checkGame(currentPlayer)) {
                 newGame();
@@ -110,12 +110,19 @@ const game = ((doc) => {
                 turnCounter++;
             }
         }
+        currentPlayer = getCurrentPlayer();
+        playerStatus.innerHTML = `It is ${currentPlayer.name}'s turn!`;
     };
 
     const resetGame = () => {
         gameBoard.resetBoard();
         turnCounter = 1;
         winningPlayer.innerHTML = "";
+        playerStatus.innerHTML = "";
+        squares.forEach((square) => {
+            square.classList.remove("occupied");
+        });
+        playerStatus.innerHTML = `It is ${player1.name}'s turn!`;
         render();
     };
 
@@ -136,10 +143,11 @@ const game = ((doc) => {
 
     form.addEventListener("submit", (event) => {
         event.preventDefault();
-        player1 = player(player1Name, "X");
-        player2 = player(player2Name, "O");
+        player1 = player(player1Name.value, "X");
+        player2 = player(player2Name.value, "O");
         modal.style.display = "none";
         container.style.display = "grid";
+        playerStatus.innerHTML = `It is ${player1.name}'s turn!`;
     });
 
     return {
